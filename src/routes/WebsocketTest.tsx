@@ -1,4 +1,9 @@
+import { createSignal } from "solid-js";
+
 function WebsocketTest() {
+	const [name, setName] = createSignal("");
+	const [message, setMessage] = createSignal("");
+
 	let ws: WebSocket;
 
 	const joinRoom = async (e: SubmitEvent) => {
@@ -35,19 +40,49 @@ function WebsocketTest() {
 		});
 	};
 
-	const sendMessage = () => {
-		ws.send(JSON.stringify({ name: "bolt" }));
+	const handleNameChange = (e: Event) => {
+		const val = (e.target as HTMLInputElement).value;
+		setName(val);
+	};
+
+	const sendName = () => {
+		ws.send(JSON.stringify({ name: name() }));
+	};
+
+	const handleMessageChange = (e: Event) => {
+		const val = (e.target as HTMLInputElement).value;
+		setMessage(val);
+	};
+
+	const sendMessage = (e: SubmitEvent) => {
+		e.preventDefault();
+		ws.send(JSON.stringify({ message: message() }));
+		setMessage("");
 	};
 
 	return (
 		<div>
 			<div>
 				<form onsubmit={joinRoom}>
-					<p>enter room name</p>
-					<input class="bg-ctp-surface0 p-2 rounded-md" type="text" />
-					<button type="submit">join</button>
+					<p>enter your name</p>
+					<input
+						class="bg-ctp-surface0 p-2 rounded-md"
+						type="text"
+						value={name()}
+						onchange={handleNameChange}
+					/>
+					<button type="submit">connect</button>
 				</form>
-				<button onclick={sendMessage}>send message</button>
+				<button onclick={sendName}>join</button>
+				<form onsubmit={sendMessage}>
+					<input
+						class="bg-ctp-surface0 p-2 rounded-md"
+						type="text"
+						value={message()}
+						onchange={handleMessageChange}
+					/>
+					<button type="submit">send message</button>
+				</form>
 			</div>
 		</div>
 	);
