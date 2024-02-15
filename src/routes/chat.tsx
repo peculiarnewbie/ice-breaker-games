@@ -1,4 +1,3 @@
-import { action } from "@solidjs/router";
 import { For, Show, createSignal } from "solid-js";
 
 const PageStates = {
@@ -17,9 +16,12 @@ export default function Chat() {
 		}[]
 	>([]);
 
+	const [members, setMembers] = createSignal<string[]>([]);
 	const [pageState, setPageState] = createSignal(0);
+	const [ping, setPing] = createSignal(0);
 
 	let ws: WebSocket;
+	let time: number;
 
 	const joinRoom = async (e: SubmitEvent) => {
 		e.preventDefault();
@@ -52,11 +54,18 @@ export default function Chat() {
 		// Now you can send and receive messages like before.
 		ws.addEventListener("message", (msg) => {
 			const newMessage = JSON.parse(msg.data);
+			console.log(newMessage);
 			if (newMessage.action) {
-				console.log(action);
+				console.log(newMessage.action);
 				setMessages([
 					{ name: newMessage.name, message: "deleted chat" },
 				]);
+				return;
+			} else if (newMessage.joined) {
+				console.log(newMessage.joined);
+				const newMembers = [...members()];
+				newMembers.push(newMessage.joined);
+				setMembers(newMembers);
 				return;
 			}
 			const newMessages = [...messages()];
@@ -64,8 +73,9 @@ export default function Chat() {
 				name: newMessage.name,
 				message: newMessage.message,
 			});
-			console.log(newMessages);
 			setMessages(newMessages);
+
+			setPing(Date.now() - time);
 		});
 
 		await waitForSocket();
@@ -113,6 +123,7 @@ export default function Chat() {
 		e.preventDefault();
 		ws.send(JSON.stringify({ message: inputMessage() }));
 		setInputMessage("");
+		time = Date.now();
 	};
 
 	const deleteChat = () => {
@@ -165,6 +176,19 @@ export default function Chat() {
 					>
 						delete chat
 					</button>
+					<div>ping: {ping()}ms</div>
+					<div class="flex flex-col">
+						members:
+						<For each={members()}>
+							{(member, i) => (
+								<ol>
+									<li>
+										{i() + 1}.{member}
+									</li>
+								</ol>
+							)}
+						</For>
+					</div>
 				</Show>
 			</div>
 		</div>

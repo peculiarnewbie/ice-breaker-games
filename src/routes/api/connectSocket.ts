@@ -1,6 +1,3 @@
-import type { APIEvent } from "@solidjs/start/server";
-import { createViteDevServer } from "vinxi/dev-server";
-
 export async function GET({ request }) {
 	const upgradeHeader = request.headers.get("Upgrade");
 	if (!upgradeHeader || upgradeHeader !== "websocket") {
