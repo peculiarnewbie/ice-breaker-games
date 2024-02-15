@@ -1,3 +1,4 @@
+import { action } from "@solidjs/router";
 import { For, Show, createSignal } from "solid-js";
 
 const PageStates = {
@@ -51,6 +52,13 @@ export default function Chat() {
 		// Now you can send and receive messages like before.
 		ws.addEventListener("message", (msg) => {
 			const newMessage = JSON.parse(msg.data);
+			if (newMessage.action) {
+				console.log(action);
+				setMessages([
+					{ name: newMessage.name, message: "deleted chat" },
+				]);
+				return;
+			}
 			const newMessages = [...messages()];
 			newMessages.push({
 				name: newMessage.name,
@@ -107,6 +115,10 @@ export default function Chat() {
 		setInputMessage("");
 	};
 
+	const deleteChat = () => {
+		ws.send(JSON.stringify({ action: "delete" }));
+	};
+
 	return (
 		<div>
 			<div>
@@ -147,6 +159,12 @@ export default function Chat() {
 							)}
 						</For>
 					</div>
+					<button
+						onclick={deleteChat}
+						class=" bg-ctp-red p-2 rounded-md"
+					>
+						delete chat
+					</button>
 				</Show>
 			</div>
 		</div>
