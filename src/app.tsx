@@ -6,21 +6,11 @@ import Nav from "~/components/Nav";
 import "./app.css";
 
 export default function App() {
-	const [darkTheme, setDarkTheme] = createSignal(false);
 	return (
 		<Router
 			root={(props) => (
-				<div
-					class={` text-ctp-text bg-ctp-base ${
-						darkTheme() ? "ctp-mocha dark" : "ctp-latte"
-					}`}
-				>
-					<Nav
-						darkTheme={darkTheme()}
-						setDarkTheme={(dark: boolean) => {
-							setDarkTheme(dark);
-						}}
-					/>
+				<div class={` text-ctp-text bg-ctp-base`}>
+					<Nav />
 					<Suspense>{props.children}</Suspense>
 				</div>
 			)}
