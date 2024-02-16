@@ -134,7 +134,10 @@ export default function Chat() {
 		<div>
 			<div>
 				<Show when={pageState() == PageStates.NameInput}>
-					<form onsubmit={joinRoom}>
+					<form
+						class="flex flex-col w-48 mx-auto items-center p-4 gap-2"
+						onsubmit={joinRoom}
+					>
 						<p>enter your name</p>
 						<input
 							class="bg-ctp-surface0 p-2 rounded-md"
@@ -142,7 +145,10 @@ export default function Chat() {
 							value={name()}
 							onchange={handleNameChange}
 						/>
-						<button class="pl-2" type="submit">
+						<button
+							class=" bg-ctp-blue/20 p-2 w-24 rounded-md hover:border-ctp-blue border border-ctp-surface0"
+							type="submit"
+						>
 							join
 						</button>
 					</form>
