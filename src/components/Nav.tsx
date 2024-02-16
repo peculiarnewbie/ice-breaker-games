@@ -22,8 +22,12 @@ export default function Nav(props: {}) {
 				<li class={`border-b-2 ${active("/")} mx-1.5 sm:mx-3`}>
 					<a href="/">Home</a>
 				</li>
-				<li class={`border-b-2 ${active("/chat")} mx-1.5 sm:mx-3`}>
-					<a href="/chat">Chat</a>
+				<li
+					class={`border-b-2 ${active(
+						"/chat/workers"
+					)} mx-1.5 sm:mx-3`}
+				>
+					<a href="/chat/workers">Chat</a>
 				</li>
 			</ul>
 			<div class="flex gap-4 items-center px-3">

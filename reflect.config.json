@@ -1,0 +1,3 @@
+{
+	"server": "./src/components/reflect-chat/reflect-server/index.ts"
+}
