@@ -19,34 +19,34 @@
 import type { WriteTransaction } from "@rocicorp/reflect";
 
 export const mutators = {
-  increment,
-  appendChat,
+	increment,
+	appendChat,
 };
 
 export type ChatMessage = {
-  name: string;
-  message: string;
-  time: number;
+	name: string;
+	message: string;
+	time?: number;
 };
 
 export type M = typeof mutators;
 
 async function increment(
-  tx: WriteTransaction,
-  { key, delta }: { key: string; delta: number },
+	tx: WriteTransaction,
+	{ key, delta }: { key: string; delta: number },
 ) {
-  const prev = await tx.get<number>(key);
-  const next = (prev ?? 0) + delta;
-  await tx.set(key, next);
+	const prev = await tx.get<number>(key);
+	const next = (prev ?? 0) + delta;
+	await tx.set(key, next);
 }
 
 async function appendChat(
-  tx: WriteTransaction,
-  { name, message }: { name: string; message: string },
+	tx: WriteTransaction,
+	{ name, message }: { name: string; message: string },
 ) {
-  console.log(tx.clientID);
-  const time = Date.now();
-  const prev = ((await tx.get<ChatMessage[]>("chat")) as ChatMessage[]) ?? [];
-  const next = [...prev, { name: name, message: message, time: time }];
-  await tx.set("chat", next);
+	console.log(tx.clientID);
+	const time = Date.now();
+	const prev = ((await tx.get<ChatMessage[]>("chat")) as ChatMessage[]) ?? [];
+	const next = [...prev, { name: name, message: message, time: time }];
+	await tx.set("chat", next);
 }

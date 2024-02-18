@@ -1,19 +1,18 @@
 import { For, Show, createSignal } from "solid-js";
-import NameForm from "~/components/NameForm";
+import NameForm from "~/components/Chat/NameForm";
 import { PageStates } from "~/types";
+import { ChatMessage } from "../../../reflect/mutators";
+import Messages from "~/components/Chat/Messages";
 
 export default function Chat() {
 	const [inputMessage, setInputMessage] = createSignal("");
-	const [messages, setMessages] = createSignal<
-		{
-			name: string;
-			message: string;
-		}[]
-	>([]);
+	const [messages, setMessages] = createSignal<ChatMessage[]>([]);
 
 	const [members, setMembers] = createSignal<string[]>([]);
 	const [pageState, setPageState] = createSignal(0);
 	const [ping, setPing] = createSignal(0);
+
+	const [username, setUsername] = createSignal("");
 
 	let ws: WebSocket;
 	let time: number;
@@ -72,6 +71,7 @@ export default function Chat() {
 			if (newMessage.name == username) setPing(Date.now() - time);
 		});
 		console.log("wait for socket", username);
+		setUsername(username);
 
 		await waitForSocket(username);
 	};
@@ -117,12 +117,13 @@ export default function Chat() {
 	};
 
 	return (
-		<div>
-			<div>
+		<div class="flex h-svh w-screen flex-col">
+			<div class="flex h-0 w-screen max-w-lg grow flex-col gap-2 self-center p-4">
 				<Show when={pageState() == PageStates.NameInput}>
 					<NameForm joinRoom={joinRoom} />
 				</Show>
 				<Show when={pageState() == PageStates.Chatting}>
+					<Messages messages={messages()} username={username()} />
 					<form onsubmit={sendMessage}>
 						<input
 							class="rounded-md bg-ctp-surface0 p-2"
@@ -132,19 +133,6 @@ export default function Chat() {
 						/>
 						<button type="submit">send message</button>
 					</form>
-					<div class="p-4"></div>
-					<div class="bg-ctp-surface0 p-2">
-						<For each={messages()}>
-							{(message, i) => (
-								<div class="flex">
-									<div class=" font-bold">
-										{message.name}:
-									</div>
-									<div>{message.message}</div>
-								</div>
-							)}
-						</For>
-					</div>
 					<button
 						onclick={deleteChat}
 						class=" rounded-md bg-ctp-red p-2"

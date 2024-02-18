@@ -2,7 +2,7 @@ import { MutatorDefs } from "@rocicorp/reflect";
 import { Reflect } from "@rocicorp/reflect/client";
 import { For, Show, createSignal, onMount } from "solid-js";
 import { ChatMessage, mutators } from "../../../reflect/mutators";
-import NameForm from "~/components/NameForm";
+import NameForm from "~/components/Chat/NameForm";
 import { PageStates } from "~/types";
 import { nanoid } from "nanoid";
 
