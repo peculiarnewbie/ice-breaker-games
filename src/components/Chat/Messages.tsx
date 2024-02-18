@@ -12,7 +12,7 @@ export default function Messages(props: {
 					{(message) => (
 						<div
 							data-self={message.name == props.username ?? "true"}
-							class={`group flex w-full flex-col items-start gap-1 self-start data-[self=true]:items-end data-[self=true]:self-end`}
+							class={`group flex w-full flex-col items-start gap-[2px] self-start data-[self=true]:items-end data-[self=true]:self-end `}
 						>
 							<div class="flex group-data-[self=true]:flex-row-reverse">
 								<div class=" text-lg font-medium">
@@ -20,7 +20,7 @@ export default function Messages(props: {
 								</div>
 								<div>{message.time}</div>
 							</div>
-							<div class=" min-w-0 max-w-[75%] rounded-md bg-ctp-crust p-2">
+							<div class=" min-w-0 max-w-[75%] rounded-md bg-ctp-crust p-2 group-data-[self=true]:bg-ctp-blue/20">
 								{message.message}
 							</div>
 						</div>

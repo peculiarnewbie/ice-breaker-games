@@ -3,6 +3,8 @@ import NameForm from "~/components/Chat/NameForm";
 import { PageStates } from "~/types";
 import { ChatMessage } from "../../../reflect/mutators";
 import Messages from "~/components/Chat/Messages";
+import MessageForm from "~/components/Chat/MessageForm";
+import DeleteChat from "~/components/Chat/DeleteChat";
 
 export default function Chat() {
 	const [inputMessage, setInputMessage] = createSignal("");
@@ -100,16 +102,8 @@ export default function Chat() {
 		return new Promise(poll);
 	}
 
-	const handleMessageChange = (e: Event) => {
-		const val = (e.target as HTMLInputElement).value;
-		setInputMessage(val);
-	};
-
-	const sendMessage = (e: SubmitEvent) => {
-		e.preventDefault();
-		ws.send(JSON.stringify({ message: inputMessage() }));
-		setInputMessage("");
-		time = Date.now();
+	const sendMessage = (message: string) => {
+		ws.send(JSON.stringify({ message: message }));
 	};
 
 	const deleteChat = () => {
@@ -117,40 +111,27 @@ export default function Chat() {
 	};
 
 	return (
-		<div class="flex h-svh w-screen flex-col">
+		<div class="flex h-0 w-screen grow flex-col">
 			<div class="flex h-0 w-screen max-w-lg grow flex-col gap-2 self-center p-4">
 				<Show when={pageState() == PageStates.NameInput}>
 					<NameForm joinRoom={joinRoom} />
 				</Show>
 				<Show when={pageState() == PageStates.Chatting}>
 					<Messages messages={messages()} username={username()} />
-					<form onsubmit={sendMessage}>
-						<input
-							class="rounded-md bg-ctp-surface0 p-2"
-							type="text"
-							value={inputMessage()}
-							onchange={handleMessageChange}
-						/>
-						<button type="submit">send message</button>
-					</form>
-					<button
-						onclick={deleteChat}
-						class=" rounded-md bg-ctp-red p-2"
-					>
-						delete chat
-					</button>
-					<div>ping: last message sent in {ping()}ms</div>
+					<MessageForm sendMessage={sendMessage} />
+					<div class="flex gap-2">
+						<DeleteChat deleteChat={deleteChat} />
+						<div>last message sent in {ping()}ms</div>
+					</div>
 					<div class="flex flex-col">
-						members:
-						<For each={members()}>
-							{(member, i) => (
-								<ol>
-									<li>
-										{i() + 1}.{member}
-									</li>
-								</ol>
-							)}
-						</For>
+						online members:
+						<div>
+							<For each={members()}>
+								{(member, i) => (
+									<span>{`${i() + 1}. ${member} `}</span>
+								)}
+							</For>
+						</div>
 					</div>
 				</Show>
 			</div>

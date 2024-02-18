@@ -20,19 +20,20 @@ export default function NameForm(props: { joinRoom: (name: string) => void }) {
 
 	return (
 		<form
-			class="flex flex-col w-48 mx-auto items-center p-4 gap-2"
+			class="mx-auto flex w-48 flex-col items-center gap-2 p-4 text-center"
 			onsubmit={joinRoom}
 		>
 			<p>enter your name</p>
 			<input
 				name="name"
-				class="bg-ctp-surface0 p-2 rounded-md"
+				class="rounded-md bg-ctp-surface0 p-2 text-center"
 				type="text"
 				value={name()}
 				onchange={handleNameChange}
+				placeholder="your name"
 			/>
 			<button
-				class=" bg-ctp-blue/20 p-2 w-24 rounded-md hover:border-ctp-blue border border-ctp-surface0"
+				class=" w-24 rounded-md border border-ctp-surface0 bg-ctp-blue/20 p-2 hover:border-ctp-blue"
 				type="submit"
 			>
 				join

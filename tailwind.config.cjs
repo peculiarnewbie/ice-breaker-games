@@ -10,4 +10,5 @@ module.exports = {
 			defaultFlavour: "latte",
 		}),
 	],
+	darkMode: "class",
 };
