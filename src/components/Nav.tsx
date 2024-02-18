@@ -17,7 +17,7 @@ export default function Nav(props: {}) {
 	});
 
 	return (
-		<nav class="bg-ctp-crust flex">
+		<nav class="bg-ctp-crust flex justify-between">
 			<ul class="container flex items-center p-3 ">
 				<li class={`border-b-2 ${active("/")} mx-1.5 sm:mx-3`}>
 					<a href="/">Home</a>

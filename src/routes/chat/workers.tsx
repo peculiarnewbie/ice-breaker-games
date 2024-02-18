@@ -1,13 +1,8 @@
 import { For, Show, createSignal } from "solid-js";
-
-const PageStates = {
-	NameInput: 0,
-	Joining: 1,
-	Chatting: 2,
-};
+import NameForm from "~/components/NameForm";
+import { PageStates } from "~/types";
 
 export default function Chat() {
-	const [name, setName] = createSignal("");
 	const [inputMessage, setInputMessage] = createSignal("");
 	const [messages, setMessages] = createSignal<
 		{
@@ -23,8 +18,7 @@ export default function Chat() {
 	let ws: WebSocket;
 	let time: number;
 
-	const joinRoom = async (e: SubmitEvent) => {
-		e.preventDefault();
+	const joinRoom = async (username: string) => {
 		console.log("calling server");
 
 		const roomName = "testing";
@@ -33,7 +27,7 @@ export default function Chat() {
 			(import.meta.env.VITE_SOCKET_SERVICE as string) +
 				"/api/room/" +
 				roomName +
-				"/websocket"
+				"/websocket",
 		);
 		url.protocol = "wss";
 		// url.pathname = "/ws";
@@ -75,10 +69,11 @@ export default function Chat() {
 			});
 			setMessages(newMessages);
 
-			setPing(Date.now() - time);
+			if (newMessage.name == username) setPing(Date.now() - time);
 		});
+		console.log("wait for socket", username);
 
-		await waitForSocket();
+		await waitForSocket(username);
 	};
 
 	const getSocketReadyState = () => {
@@ -86,11 +81,11 @@ export default function Chat() {
 		else return false;
 	};
 
-	const waitForSocket = async () => {
+	const waitForSocket = async (username: string) => {
 		setPageState(PageStates.Joining);
 		await until(getSocketReadyState);
 
-		sendName();
+		ws.send(JSON.stringify({ name: username }));
 		setPageState(PageStates.Chatting);
 		console.log("connected");
 	};
@@ -104,15 +99,6 @@ export default function Chat() {
 
 		return new Promise(poll);
 	}
-
-	const handleNameChange = (e: Event) => {
-		const val = (e.target as HTMLInputElement).value;
-		setName(val);
-	};
-
-	const sendName = () => {
-		ws.send(JSON.stringify({ name: name() }));
-	};
 
 	const handleMessageChange = (e: Event) => {
 		const val = (e.target as HTMLInputElement).value;
@@ -134,29 +120,12 @@ export default function Chat() {
 		<div>
 			<div>
 				<Show when={pageState() == PageStates.NameInput}>
-					<form
-						class="flex flex-col w-48 mx-auto items-center p-4 gap-2"
-						onsubmit={joinRoom}
-					>
-						<p>enter your name</p>
-						<input
-							class="bg-ctp-surface0 p-2 rounded-md"
-							type="text"
-							value={name()}
-							onchange={handleNameChange}
-						/>
-						<button
-							class=" bg-ctp-blue/20 p-2 w-24 rounded-md hover:border-ctp-blue border border-ctp-surface0"
-							type="submit"
-						>
-							join
-						</button>
-					</form>
+					<NameForm joinRoom={joinRoom} />
 				</Show>
 				<Show when={pageState() == PageStates.Chatting}>
 					<form onsubmit={sendMessage}>
 						<input
-							class="bg-ctp-surface0 p-2 rounded-md"
+							class="rounded-md bg-ctp-surface0 p-2"
 							type="text"
 							value={inputMessage()}
 							onchange={handleMessageChange}
@@ -178,11 +147,11 @@ export default function Chat() {
 					</div>
 					<button
 						onclick={deleteChat}
-						class=" bg-ctp-red p-2 rounded-md"
+						class=" rounded-md bg-ctp-red p-2"
 					>
 						delete chat
 					</button>
-					<div>ping: {ping()}ms</div>
+					<div>ping: last message sent in {ping()}ms</div>
 					<div class="flex flex-col">
 						members:
 						<For each={members()}>
