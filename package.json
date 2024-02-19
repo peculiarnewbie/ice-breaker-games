@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@libsql/client": "^0.4.3",
+    "@rocicorp/rails": "^0.10.0",
     "@rocicorp/reflect": "^0.39.202402030014",
     "@solidjs/router": "^0.12.0",
     "@solidjs/start": "^0.5.5",

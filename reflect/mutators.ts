@@ -16,17 +16,56 @@
 // thing. The Reflect sync protocol ensures that the server-side result takes
 // precedence over the client-side optimistic result.
 
-import type { WriteTransaction } from "@rocicorp/reflect";
-
-export const mutators = {
-	increment,
-	appendChat,
-};
+import type { ClientID, WriteTransaction } from "@rocicorp/reflect";
+import { generate } from "@rocicorp/rails";
+import { generatePresence } from "@rocicorp/rails";
 
 export type ChatMessage = {
+	id: string;
 	name: string;
 	message: string;
 	time?: number;
+};
+
+export const {
+	set: setMessage,
+	delete: deleteMessage,
+	list: listMessage,
+} = generate<ChatMessage>("chat");
+
+export type Client = {
+	clientID: string;
+	name: string;
+};
+
+export const {
+	set: setClient,
+	get: getClient,
+	init: initClient,
+	update: updateClient,
+	list: listClients,
+} = generatePresence<Client>("client");
+
+export const mutators = {
+	increment,
+	setMessage,
+	deleteMessage,
+	listMessage,
+	sendMessage: async (tx: WriteTransaction, message: ChatMessage) => {
+		await setMessage(tx, message);
+	},
+	initClient,
+	clearClients: async (
+		tx: WriteTransaction,
+		presentClientIDs: ClientID[],
+	) => {
+		const clients = await listClients(tx);
+		const presentClients = clients.filter((client) =>
+			presentClientIDs.find((id) => client.clientID === id),
+		);
+		console.log("clearing", presentClients);
+		tx.set("client", presentClients);
+	},
 };
 
 export type M = typeof mutators;
@@ -38,15 +77,4 @@ async function increment(
 	const prev = await tx.get<number>(key);
 	const next = (prev ?? 0) + delta;
 	await tx.set(key, next);
-}
-
-async function appendChat(
-	tx: WriteTransaction,
-	{ name, message }: { name: string; message: string },
-) {
-	console.log(tx.clientID);
-	const time = Date.now();
-	const prev = ((await tx.get<ChatMessage[]>("chat")) as ChatMessage[]) ?? [];
-	const next = [...prev, { name: name, message: message, time: time }];
-	await tx.set("chat", next);
 }

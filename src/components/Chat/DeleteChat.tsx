@@ -1,7 +1,9 @@
 import { Show, createSignal } from "solid-js";
+import { darkThemeStore } from "../Nav";
 
 export default function DeleteChat(props: { deleteChat: () => void }) {
 	const [deleteDialog, setDeleteDialog] = createSignal(false);
+	const { darkTheme } = darkThemeStore;
 
 	const deleteChat = () => {
 		setDeleteDialog(true);
@@ -10,7 +12,11 @@ export default function DeleteChat(props: { deleteChat: () => void }) {
 	return (
 		<div>
 			<button onclick={deleteChat} class=" rounded-md bg-ctp-red p-2">
-				delete chat
+				<p
+					class={`text-ctp-text ${darkTheme() ? "ctp-latte" : "ctp-mocha"}`}
+				>
+					delete chat
+				</p>
 			</button>
 			<Show when={deleteDialog()}>
 				<div class=" fixed left-0 top-0 flex h-screen w-screen items-center justify-center bg-black/50">
@@ -23,8 +29,18 @@ export default function DeleteChat(props: { deleteChat: () => void }) {
 							>
 								cancel
 							</button>
-							<button class=" rounded-md bg-ctp-red p-2">
-								<p class=" ctp-mocha text-ctp-text">delete</p>
+							<button
+								onclick={() => {
+									props.deleteChat();
+									setDeleteDialog(false);
+								}}
+								class={` rounded-md bg-ctp-red p-2`}
+							>
+								<p
+									class={` ${darkTheme() ? "ctp-latte" : "ctp-mocha"}`}
+								>
+									<span class="text-ctp-text">delete</span>
+								</p>
 							</button>
 						</div>
 					</div>

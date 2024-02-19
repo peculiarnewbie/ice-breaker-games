@@ -18,7 +18,9 @@ export default function Messages(props: {
 								<div class=" text-lg font-medium">
 									{message.name}
 								</div>
-								<div>{message.time}</div>
+								<div class=" text-xs text-ctp-subtext1">
+									{message.time}
+								</div>
 							</div>
 							<div class=" min-w-0 max-w-[75%] rounded-md bg-ctp-crust p-2 group-data-[self=true]:bg-ctp-blue/20">
 								{message.message}

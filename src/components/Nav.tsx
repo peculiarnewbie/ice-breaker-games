@@ -1,6 +1,13 @@
 import { useLocation } from "@solidjs/router";
 import { moon, sun, github } from "./Icons";
-import { createEffect, createSignal } from "solid-js";
+import { createEffect, createRoot, createSignal } from "solid-js";
+
+const createDarkTheme = () => {
+	const [darkTheme, setDarkTheme] = createSignal(false);
+	return { darkTheme, setDarkTheme };
+};
+
+export const darkThemeStore = createRoot(createDarkTheme);
 
 export default function Nav(props: {}) {
 	const location = useLocation();
@@ -9,7 +16,7 @@ export default function Nav(props: {}) {
 			? "border-ctp-blue"
 			: "border-transparent hover:border-ctp-blue";
 
-	const [darkTheme, setDarkTheme] = createSignal(false);
+	const { darkTheme, setDarkTheme } = darkThemeStore;
 
 	createEffect(() => {
 		if (darkTheme()) document.body.className = "bg-ctp-base ctp-mocha dark";
@@ -17,39 +24,39 @@ export default function Nav(props: {}) {
 	});
 
 	return (
-		<nav class="bg-ctp-crust flex justify-between">
+		<nav class="flex justify-between bg-ctp-crust">
 			<ul class="container flex items-center p-3 ">
 				<li class={`border-b-2 ${active("/")} mx-1.5 sm:mx-3`}>
 					<a href="/">Home</a>
 				</li>
 				<li
 					class={`border-b-2 ${active(
-						"/chat/workers"
+						"/chat/workers",
 					)} mx-1.5 sm:mx-3`}
 				>
 					<a href="/chat/workers">Chat</a>
 				</li>
 			</ul>
-			<div class="flex gap-4 items-center px-3">
+			<div class="flex items-center gap-4 px-3">
 				<button
-					class=" flex items-center rounded-full bg-ctp-base border border-ctp-surface0 hover:border-ctp-blue w-12 h-8"
+					class=" flex h-8 w-12 items-center rounded-full border border-ctp-surface0 bg-ctp-base hover:border-ctp-blue"
 					onClick={() => setDarkTheme(!darkTheme())}
 				>
 					<div
-						class={` flex px-1 transition-all h-8 justify-end ${
+						class={` flex h-8 justify-end px-1 transition-all ${
 							darkTheme() ? "w-8" : "w-12"
 						} `}
 					>
-						<div class=" flex justify-center items-center scale-75">
+						<div class=" flex scale-75 items-center justify-center">
 							{darkTheme() ? moon : sun}
 						</div>
 					</div>
 				</button>
-				<div class="h-8 w-[2px] bg-ctp-surface0 rounded-full" />
+				<div class="h-8 w-[2px] rounded-full bg-ctp-surface0" />
 				<a
 					target="_blank"
 					href="https://github.com/peculiarnewbie/ice-breaker-games"
-					class="bg-ctp-surface0 rounded-full p-1 border-ctp-surface0 hover:border-ctp-blue border"
+					class="rounded-full border border-ctp-surface0 bg-ctp-surface0 p-1 hover:border-ctp-blue"
 				>
 					<div class="scale-75">{github}</div>
 				</a>

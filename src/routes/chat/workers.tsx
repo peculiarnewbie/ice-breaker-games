@@ -5,6 +5,8 @@ import { ChatMessage } from "../../../reflect/mutators";
 import Messages from "~/components/Chat/Messages";
 import MessageForm from "~/components/Chat/MessageForm";
 import DeleteChat from "~/components/Chat/DeleteChat";
+import ChatMembers from "~/components/Chat/ChatMembers";
+import { nanoid } from "nanoid";
 
 export default function Chat() {
 	const [inputMessage, setInputMessage] = createSignal("");
@@ -53,7 +55,11 @@ export default function Chat() {
 			if (newMessage.action) {
 				console.log(newMessage.action);
 				setMessages([
-					{ name: newMessage.name, message: "deleted chat" },
+					{
+						id: nanoid(),
+						name: newMessage.name,
+						message: "deleted chat",
+					},
 				]);
 				return;
 			} else if (newMessage.joined) {
@@ -65,6 +71,7 @@ export default function Chat() {
 			}
 			const newMessages = [...messages()];
 			newMessages.push({
+				id: nanoid(),
 				name: newMessage.name,
 				message: newMessage.message,
 			});
@@ -116,22 +123,15 @@ export default function Chat() {
 				<Show when={pageState() == PageStates.NameInput}>
 					<NameForm joinRoom={joinRoom} />
 				</Show>
+
 				<Show when={pageState() == PageStates.Chatting}>
 					<Messages messages={messages()} username={username()} />
 					<MessageForm sendMessage={sendMessage} />
-					<div class="flex gap-2">
+					<ChatMembers members={members()} />
+
+					<div class="flex items-center gap-2">
 						<DeleteChat deleteChat={deleteChat} />
 						<div>last message sent in {ping()}ms</div>
-					</div>
-					<div class="flex flex-col">
-						online members:
-						<div>
-							<For each={members()}>
-								{(member, i) => (
-									<span>{`${i() + 1}. ${member} `}</span>
-								)}
-							</For>
-						</div>
 					</div>
 				</Show>
 			</div>
