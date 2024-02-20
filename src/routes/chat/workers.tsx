@@ -53,7 +53,6 @@ export default function Chat() {
 			const newMessage = JSON.parse(msg.data);
 			console.log(newMessage);
 			if (newMessage.action) {
-				console.log(newMessage.action);
 				setMessages([
 					{
 						id: nanoid(),
@@ -63,17 +62,27 @@ export default function Chat() {
 				]);
 				return;
 			} else if (newMessage.joined) {
-				console.log(newMessage.joined);
 				const newMembers = [...members()];
 				newMembers.push(newMessage.joined);
 				setMembers(newMembers);
 				return;
-			}
+			} else if (newMessage.quit) {
+				const newMembers = members().filter(
+					(name) => name !== newMessage.quit,
+				);
+				setMembers(newMembers);
+				return;
+			} else if (
+				(newMessage.name && !newMessage.message) ||
+				newMessage.ready
+			)
+				return;
 			const newMessages = [...messages()];
 			newMessages.push({
 				id: nanoid(),
 				name: newMessage.name,
 				message: newMessage.message,
+				time: newMessage.time,
 			});
 			setMessages(newMessages);
 
@@ -110,6 +119,7 @@ export default function Chat() {
 	}
 
 	const sendMessage = (message: string) => {
+		time = Date.now();
 		ws.send(JSON.stringify({ message: message }));
 	};
 
@@ -120,6 +130,9 @@ export default function Chat() {
 	return (
 		<div class="flex h-0 w-screen grow flex-col">
 			<div class="flex h-0 w-screen max-w-lg grow flex-col gap-2 self-center p-4">
+				<p class="text-center">
+					using cloudflare workers and durable objects
+				</p>
 				<Show when={pageState() == PageStates.NameInput}>
 					<NameForm joinRoom={joinRoom} />
 				</Show>
