@@ -6,6 +6,7 @@ import {
 	Client,
 	listClients,
 	listMessage,
+	listPresentClients,
 	mutators,
 } from "../../../reflect/mutators";
 import NameForm from "~/components/Chat/NameForm";
@@ -24,7 +25,9 @@ if (!server) {
 export default function () {
 	const [username, setUsername] = createSignal("");
 	const [count, setCount] = createSignal(0);
+
 	const [ping, setPing] = createSignal(0);
+	const [sentMessageID, setSentMessageID] = createSignal("");
 
 	const [messages, setMessages] = createSignal<ChatMessage[]>([]);
 	const [pageState, setPageState] = createSignal(0);
@@ -37,89 +40,60 @@ export default function () {
 	let time: number;
 
 	let r: Reflect<typeof mutators>;
-	// let presentClientIDs: readonly ClientID[] = [];
-	const initJoin = async () => {
+	const initJoin = async (clientName: string) => {
 		r = new Reflect({
 			server,
 			roomID: "myRoom",
 			userID: nanoid(),
 			mutators,
 		});
+
+		r.mutate.addPresentClient({ id: r.clientID, name: clientName });
+		r.mutate.initClient({ clientID: r.clientID });
+
 		r.subscribe(
 			(tx) => tx.get<number>("count"),
 			(data) => setCount(data ?? 0),
 		);
 		r.subscribe(listMessage, (data) => {
 			const sorted = data.sort((a, b) => (a.time ?? 0) - (b.time ?? 0));
+
 			setMessages(sorted);
 		});
 
 		r.subscribeToPresence((clientIDs) => {
 			setPresentClientIDs(clientIDs);
-			console.log("present", clientIDs);
-			updateClients();
-			// presentClientIDs = clientIDs;
 		});
-
-		// r.subscribe(
-		// 	async (tx) => {
-		// 		const result: Record<ClientID, Client> = {};
-		// 		for (const client of await listClients(tx)) {
-		// 			result[client.clientID] = client;
-		// 		}
-		// 		return result;
-		// 	},
-		// 	(result) => {
-		// 		const IDs = Object.keys(result);
-		// 		const names: string[] = [];
-		// 		presentClientIDs().forEach((presentID) => {
-		// 			const index = IDs.findIndex((id) => id == presentID);
-		// 			if (index) names.push(result[IDs[index]].name);
-		// 		});
-		// 		setMembers(names);
-		// 	},
-		// );
-
-		// r.subscribe(listClients, (result) => {
-		// 	const names: string[] = [];
-		// 	result.forEach((client) => {
-		// 		names.push(client.name);
-		// 	});
-		// 	setMembers(names);
-		// });
 	};
 
-	const updateClients = async () => {
-		const presentClients = presentClientIDs() as ClientID[];
-		const clients = await r.query(listClients);
+	const updateClients = async (clientIDs: ClientID[]) => {
+		if (!r) return;
+		const clients = await r.query(listPresentClients);
 		const names: string[] = [];
-		console.log("updating", clients, presentClients);
-		presentClients.forEach((presentID) => {
-			const index = clients.findIndex((id) => id.clientID == presentID);
-			if (index) names.push(clients[index].name);
-		});
-		setMembers(names);
-	};
 
-	const onClick = () => {
-		r.mutate.increment({ key: "count", delta: 1 });
+		for (let i = 0; i < clients.length; i++) {
+			if (clientIDs.find((id) => id == clients[i].id))
+				names.push(clients[i].name);
+			else r.mutate.deletePresentClient(clients[i].id);
+		}
+
+		setMembers(names);
 	};
 
 	const sendMessage = async (message: string) => {
 		time = Date.now();
+		const generatedID = nanoid();
+		setSentMessageID(generatedID);
 		r.mutate.sendMessage({
-			id: nanoid(),
+			id: generatedID,
 			name: username(),
 			message: message,
-			time: Date.now(),
 		});
 	};
 
 	const joinRoom = async (username: string) => {
 		setUsername(username);
-		await initJoin();
-		r.mutate.initClient({ clientID: r.clientID, name: username });
-		// r.mutate.addClient({ clientID: r.clientID, name: username });
+		await initJoin(username);
 		setPageState(PageStates.Chatting);
 	};
 
@@ -128,6 +102,23 @@ export default function () {
 			r.mutate.deleteMessage(message.id);
 		});
 	};
+
+	createEffect(() => {
+		updateClients(presentClientIDs() as ClientID[]);
+	});
+
+	createEffect(() => {
+		let newMessages = messages().toReversed();
+		if (sentMessageID() !== "" && Date.now() - time > 10) {
+			const minimum = newMessages.length > 4 ? 5 : newMessages.length;
+			for (let i = 0; i < minimum; i++) {
+				if (newMessages[i].id == sentMessageID()) {
+					setSentMessageID("");
+					setPing(newMessages[i].time - time);
+				}
+			}
+		}
+	});
 
 	return (
 		<div class="flex h-0 w-screen grow flex-col">

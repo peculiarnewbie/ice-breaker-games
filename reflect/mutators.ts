@@ -35,6 +35,10 @@ export const {
 
 export type Client = {
 	clientID: string;
+};
+
+export type PresentClient = {
+	id: string;
 	name: string;
 };
 
@@ -46,15 +50,28 @@ export const {
 	list: listClients,
 } = generatePresence<Client>("client");
 
+export const {
+	set: setPresentClient,
+	get: getPresentClient,
+	update: updatePresentClient,
+	list: listPresentClients,
+	delete: deletePresentClient,
+} = generate<PresentClient>("presentClient");
+
 export const mutators = {
 	increment,
 	setMessage,
 	deleteMessage,
 	listMessage,
 	sendMessage: async (tx: WriteTransaction, message: ChatMessage) => {
-		await setMessage(tx, message);
+		await setMessage(tx, { ...message, time: Date.now() });
 	},
 	initClient,
+	listPresentClient: listPresentClients,
+	deletePresentClient,
+	addPresentClient: async (tx: WriteTransaction, client: PresentClient) => {
+		await setPresentClient(tx, client);
+	},
 	clearClients: async (
 		tx: WriteTransaction,
 		presentClientIDs: ClientID[],
