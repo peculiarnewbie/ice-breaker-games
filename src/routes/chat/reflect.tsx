@@ -70,7 +70,7 @@ export default function () {
 		if (!r) return;
 		const clients = await r.query(listPresentClients);
 		const names: string[] = [];
-
+		console.log("present", clientIDs, "from", clients);
 		for (let i = 0; i < clients.length; i++) {
 			if (clientIDs.find((id) => id == clients[i].id))
 				names.push(clients[i].name);
@@ -114,6 +114,7 @@ export default function () {
 			for (let i = 0; i < minimum; i++) {
 				if (newMessages[i].id == sentMessageID()) {
 					setSentMessageID("");
+					//@ts-expect-error
 					setPing(newMessages[i].time - time);
 				}
 			}
@@ -123,6 +124,7 @@ export default function () {
 	return (
 		<div class="flex h-0 w-screen grow flex-col">
 			<div class="flex h-0 w-screen max-w-lg grow flex-col gap-2 self-center p-4">
+				<p class="text-center">using reflect</p>
 				<Show when={pageState() == PageStates.NameInput}>
 					<NameForm joinRoom={joinRoom} />
 				</Show>
