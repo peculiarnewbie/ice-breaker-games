@@ -9,19 +9,19 @@
 		"pages:deploy": "bun run build && wrangler pages deploy ./.output"
 	},
 	"dependencies": {
-		"@libsql/client": "^0.4.3",
+		"@libsql/client": "^0.6.0",
 		"@rocicorp/rails": "^0.10.0",
 		"@rocicorp/reflect": "^0.39.202402030014",
-		"@solidjs/router": "^0.12.0",
-		"@solidjs/start": "^0.6.0",
+		"@solidjs/router": "^0.13.2",
+		"@solidjs/start": "^1.0.0-rc.0",
 		"autoprefixer": "^10.4.14",
 		"dayjs": "^1.11.10",
-		"drizzle-orm": "^0.29.3",
+		"drizzle-orm": "^0.30.8",
 		"nanoid": "^5.0.5",
 		"postcss": "^8.4.26",
 		"solid-js": "^1.8.14",
 		"tailwindcss": "^3.3.3",
-		"vinxi": "^0.2.1"
+		"vinxi": "^0.3.11"
 	},
 	"engines": {
 		"node": ">=18"
@@ -31,7 +31,6 @@
 		"@cloudflare/workers-types": "^4.20240208.0",
 		"drizzle-kit": "^0.20.14",
 		"prettier": "^3.2.5",
-		"prettier-plugin-tailwindcss": "^0.5.11",
-		"wrangler": "^3.28.1"
+		"prettier-plugin-tailwindcss": "^0.5.11"
 	}
 }
